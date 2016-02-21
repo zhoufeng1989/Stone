@@ -7,9 +7,9 @@ abstract class Token {
   def isIdentifier = false
   def isNumber = false
   def isString = false
-  def number = {throw new StoneException("not number token")}
+  def number: Number = {throw new StoneException("not number token")}
   def text = ""
-  abstract def lineNumber: Int
+  def lineNumber: Int
 }
 
 
@@ -18,24 +18,24 @@ case object EOF extends Token {
 }
 
 
-case class EOL(val lineNumber: String) extends Token {
+case class EOL(val lineNumber: Int) extends Token {
   override def isString = true
   override val text = "\n"
 }
 
 
-case class NumToken(val lineNumber: String, override val number: Number) extends Token {
+case class NumToken(val lineNumber: Int, override val number: Number) extends Token {
   override def isNumber = true
   override def text = number.toString
 }
 
 
-case class IdToken(val lineNumber: String, override val text: String) extends Token {
+case class IdToken(val lineNumber: Int, override val text: String) extends Token {
   override def isIdentifier = true
 }
 
 
-case class StrToken(val lineNumber: String, override val text: String) extends Token {
+case class StrToken(val lineNumber: Int, override val text: String) extends Token {
   override def isString = true
 }
 
