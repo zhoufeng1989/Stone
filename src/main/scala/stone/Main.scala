@@ -6,5 +6,5 @@ package stone
 object Main extends App {
   val filename = "test.txt"
   val lexer = new Lexer(scala.io.Source.fromFile(filename))
-  lexer.parse
+  println(lexer.parse)
 }
