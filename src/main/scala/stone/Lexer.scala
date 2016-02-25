@@ -13,7 +13,7 @@ class Lexer(val source: scala.io.Source) {
 
   def parse = source.getLines.toList.zip(Stream.from(1)).map {
     case (line, lineNumber) => parseString(lineNumber, line)
-  }.flatten ++ List(EOF)
+  }.flatten.toVector :+ EOF
 
   def parseString(lineNumber:Int, string: String): List[Token] = {
     pattern.findAllMatchIn(string).toList.init.foldRight(List(EOL(lineNumber)):List[Token]) {
