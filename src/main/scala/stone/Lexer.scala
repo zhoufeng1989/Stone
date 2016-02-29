@@ -10,10 +10,29 @@ class Lexer(val source: scala.io.Source) {
   private val identityPattern = """[A-Z_a-z][A-Z_a-z0-9]*|==|<=|>=|&&|\|\||\p{Punct}"""
   private val spacePattern = """\s*"""
   val pattern = s"""${spacePattern}((${commentPattern})|(${numberPattern})|(${stringPattern})|(${identityPattern}))?""".r
+  var queue = Vector[Token]()
 
-  def parse = source.getLines.toList.zip(Stream.from(1)).map {
+  var stream = source.getLines.toStream.zip(Stream.from(1)).map {
     case (line, lineNumber) => parseString(lineNumber, line)
-  }.flatten.toVector :+ EOF
+  }.flatten
+
+  def peek(): Token = {
+    val token = stream.head
+    token
+  }
+
+  def read: Token = {
+    val token = stream.head
+    stream = stream.tail
+    token
+  }
+
+  private def fillQueue(i: Int): Boolean = {
+    while (queue.size < i) {
+      false
+    }
+    false
+  }
 
   def parseString(lineNumber:Int, string: String): List[Token] = {
     pattern.findAllMatchIn(string).toList.init.foldRight(List(EOL(lineNumber)):List[Token]) {
