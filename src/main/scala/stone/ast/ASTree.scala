@@ -23,6 +23,6 @@ case class StringLiteral(token: StrToken) extends ASTree {
 }
 
 
-case class BinaryExpr(left: ASTree, right: ASTree, token: IdToken) extends ASTree {
-  def operator = token.text
+case class BinaryExpr(left: ASTree, right: ASTree, op: Name) extends ASTree {
+  def operator = op.token.text
 }
