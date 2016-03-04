@@ -3,6 +3,9 @@ package stone
 import ast._
 
 import ast.ASTree
+
+import scala.util.control.Breaks
+
 /**
  * Created by zhoufeng on 16/2/25.
  */
@@ -11,29 +14,33 @@ class ExprParser(p: Lexer) {
   private val lexer = p
 
   def expression(): ASTree = {
-    val left = term()
-    lexer.peek match {
-      case token: IdToken if token.text == "+" || token.text == "-" => {
-        lexer.read
-        val op = Name(token)
-        val right = expression()
-        BinaryExpr(left, right, op)
+    def loop(left: ASTree): ASTree = {
+      lexer.peek match {
+        case token: IdToken if token.text == "+" || token.text == "-" => {
+          lexer.read
+          val op = Name(token)
+          val right = term()
+          loop(BinaryExpr(left, right, op))
+        }
+        case _ => left
       }
-      case _ => left
     }
+    loop(term())
   }
 
   def term(): ASTree = {
-    val left = factor()
-    lexer.peek match {
-      case token: IdToken if token.text == "*" || token.text == "/" => {
-        lexer.read
-        val op = Name(token)
-        val right = term()
-        BinaryExpr(left, right, op)
+    def loop(left: ASTree): ASTree = {
+      lexer.peek match {
+        case token: IdToken if token.text == "*" || token.text == "/" => {
+          lexer.read
+          val op = Name(token)
+          val right = factor()
+          loop(BinaryExpr(left, right, op))
+        }
+        case _ => left
       }
-      case _ => left
     }
+    loop(factor())
   }
 
   def factor(): ASTree = lexer.read match {
@@ -47,20 +54,4 @@ class ExprParser(p: Lexer) {
     case t: NumToken => NumberLiteral(t)
     case _ => throw new ParseException("parse exception")
   }
-
-  private def isToken(name: String): Boolean = {
-    val token = lexer.peek
-    return token.isIdentifier && token.text == name
-  }
-
-  private def readToken(name: String): Token = {
-    if (isToken(name)) {
-      lexer.read
-    }
-    else {
-      throw new ParseException("parse exception")
-    }
-  }
 }
-
-
