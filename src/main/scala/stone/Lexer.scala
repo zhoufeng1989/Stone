@@ -27,6 +27,13 @@ class Lexer(val source: scala.io.Source) {
     token
   }
 
+  def readIdToken: IdToken = {
+    read match {
+      case token: IdToken => token
+      case _ => throw new ParseException("parse exception")
+    }
+  }
+
   private def parseString(lineNumber:Int, string: String): List[Token] = {
     pattern.findAllMatchIn(string).toList.init.foldRight(List(EOL(lineNumber)):List[Token]) {
       (matcher, z) => {

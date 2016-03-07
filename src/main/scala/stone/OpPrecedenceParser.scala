@@ -1,6 +1,6 @@
 package stone
 
-import stone.ast.{NumberLiteral, ASTree}
+import stone.ast.{Name, BinaryExpr, NumberLiteral, ASTree}
 
 /**
  * Created by zhoufeng on 16/3/6.
@@ -17,34 +17,32 @@ class OpPrecedenceParser (val lexer: Lexer) {
     "-" -> Precedence(2, true),
     "*" -> Precedence(3, true),
     "/" -> Precedence(3, true),
-    "^" -> Precedence(3, true)
+    "^" -> Precedence(4, true)
   )
 
   def expression(): ASTree = {
-    def loop(left: ASTree, result: ASTree) = {
-      val idOption = lexer.peek match {
-        case token: IdToken => Some(operators(token.text))
-        case _ => None
-      }
-      idOption.map
+    def loop(left: ASTree): ASTree = {
+      getNextOpOptionPrec map {
+        prec => {loop(doShift(left, prec))}
+      } getOrElse left
     }
+    loop(factor())
   }
 
-  def getNextOpOption: Option[Precedence] = lexer.peek match {
+  def getNextOpOptionPrec: Option[Precedence] = lexer.peek match {
     case token: IdToken => Some(operators(token.text))
     case _ => None
   }
 
-  def doShift(left: ASTree, prec: Precedence) = {
-    def loop(left: ASTree, prec: Int, result: ASTree) = {
-      val token = lexer.read
-      val factor = factor()
-      val opOption = getNextOpOption
-      opOption map {
-        case prec
-      }
-    }
-
+  def doShift(left: ASTree, prec: Precedence):ASTree = {
+    val token = lexer.readIdToken
+    val right = factor()
+    println(left);println(prec);
+    val nextOpOptionPrec = getNextOpOptionPrec
+    nextOpOptionPrec map {
+      case nextPrec if nextPrec.leftAssoc && prec < nextPrec => { val right = doShift(right, nextPrec); BinaryExpr(left, right, Name(token))}
+      case _ => BinaryExpr(left, right, Name(token))
+    } getOrElse BinaryExpr(left, right, Name(token))
   }
 
   def factor(): ASTree = lexer.read match {
