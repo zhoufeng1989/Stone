@@ -37,12 +37,14 @@ class OpPrecedenceParser (val lexer: Lexer) {
   def doShift(left: ASTree, prec: Precedence):ASTree = {
     val token = lexer.readIdToken
     val right = factor()
-    println(left);println(prec);
-    val nextOpOptionPrec = getNextOpOptionPrec
-    nextOpOptionPrec map {
-      case nextPrec if nextPrec.leftAssoc && prec < nextPrec => { val right = doShift(right, nextPrec); BinaryExpr(left, right, Name(token))}
-      case _ => BinaryExpr(left, right, Name(token))
-    } getOrElse BinaryExpr(left, right, Name(token))
+    def loop(left: ASTree, prec: Precedence, right: ASTree): ASTree = {
+      val nextOpOptionPrec = getNextOpOptionPrec
+      nextOpOptionPrec map {
+        case nextPrec if nextPrec.leftAssoc && prec < nextPrec => loop(left, prec, doShift(right, nextPrec))
+        case _ => BinaryExpr(left, right, Name(token))
+      } getOrElse BinaryExpr(left, right, Name(token))
+    }
+    loop(left, prec, right)
   }
 
   def factor(): ASTree = lexer.read match {
