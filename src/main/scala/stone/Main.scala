@@ -5,8 +5,11 @@ package stone
  */
 object Main extends App {
   val filename = "expression.txt"
-  val lexer = new Lexer(scala.io.Source.fromFile(filename))
-  val parser = new ExprParser(lexer)
-  print(parser.expression())
+  val lexer1 = new Lexer(scala.io.Source.fromFile(filename))
+  val op_prec_parser = new OpPrecedenceParser(lexer1)
+  val lexer2 = new Lexer(scala.io.Source.fromFile(filename))
+  val expr_parser = new OpPrecedenceParser(lexer2)
+  println(op_prec_parser.expression())
+  println(expr_parser.expression())
 
 }
